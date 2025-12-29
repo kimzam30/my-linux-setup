@@ -1,7 +1,10 @@
 # 🐧 Dell XPS 15 Linux Workstation (Zorin OS)
 
-A comprehensive documentation of my Linux environment, hardware optimizations, and remote development workflow. 
+A comprehensive documentation of my Linux environment, hardware optimizations, and remote development workflow.
 
+![Maintained](https://img.shields.io/badge/Maintained-Yes-green)
+![License](https://img.shields.io/github/license/kimzam30/my-linux-setup)
+![Stars](https://img.shields.io/github/stars/kimzam30/my-linux-setup?style=social)
 ![Zorin OS](https://img.shields.io/badge/OS-Zorin%20OS%2017-005C94?logo=zorin&logoColor=white)
 ![Kernel](https://img.shields.io/badge/Kernel-6.x-blue?logo=linux&logoColor=white)
 ![Device](https://img.shields.io/badge/Hardware-Dell%20XPS%2015%209500-D0202F?logo=dell&logoColor=white)
@@ -59,7 +62,10 @@ Languages: Python 3.x, C++ (GCC/Clang)
 Environment: VS Code (Remote-SSH to NAS)
 
 Networking: Tailscale for remote port forwarding.
-
+### Advance Hardware 
+- **Fractional Scaling**: 125%
+- **Touchpad Gesture**: ```libinput-gestures```
+- **Thermal Management**: TLP
 ### 🔋 Power Management (TLP)
 **Status:** ✅ Optimized
 - **Optimization:** Installed and configured `TLP` to handle aggressive power saving when on battery and maximum performance when plugged into AC.
