@@ -92,3 +92,4 @@ flatpak install flathub com.moonlight_stream.Moonlight
 [ ] Configure Rclone for MMU OneDrive integration.
 
 [x] Optimize battery life using TLP or Power-profiles-daemon.
+ 
