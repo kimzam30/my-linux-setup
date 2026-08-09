@@ -1,95 +1,131 @@
-# 🐧 Dell XPS 15 Linux Workstation (Zorin OS)
+# My Linux Setup
 
-A comprehensive documentation of my Linux environment, hardware optimizations, and remote development workflow.
+Working notes for a Dell XPS 15 running Zorin OS — the hardware fixes that were not obvious, the power tuning that actually moved the needle, and the remote workflow that connects the laptop to a home server.
 
-![Maintained](https://img.shields.io/badge/Maintained-Yes-green)
-![License](https://img.shields.io/github/license/kimzam30/my-linux-setup)
-![Stars](https://img.shields.io/github/stars/kimzam30/my-linux-setup?style=social)
-![Zorin OS](https://img.shields.io/badge/OS-Zorin%20OS%2017-005C94?logo=zorin&logoColor=white)
-![Kernel](https://img.shields.io/badge/Kernel-6.x-blue?logo=linux&logoColor=white)
-![Device](https://img.shields.io/badge/Hardware-Dell%20XPS%2015%209500-D0202F?logo=dell&logoColor=white)
+![Zorin OS](https://img.shields.io/badge/Zorin_OS_17-005C94?style=flat-square&logo=zorin&logoColor=white)
+![Hardware](https://img.shields.io/badge/Dell_XPS_15_9500-D0202F?style=flat-square&logo=dell&logoColor=white)
+![Tailscale](https://img.shields.io/badge/Tailscale-18181B?style=flat-square&logo=tailscale&logoColor=white)
+![License](https://img.shields.io/github/license/kimzam30/my-linux-setup?style=flat-square)
 
 ---
 
-## 💻 Hardware Specifications
-- **Model:** Dell XPS 15 9500
-- **OS:** Zorin OS (Pro/Core) - Wayland Desktop
-- **CPU:** Intel Core i7-10750H
-- **Primary Use:** IT Student at Multimedia University (MMU) | Python & C++ Development
+## The machine
+
+| | |
+|---|---|
+| Model | Dell XPS 15 9500 |
+| CPU | Intel Core i7-10750H |
+| OS | Zorin OS 17, Wayland session |
+| Used for | Python and C++ coursework, remote development |
 
 ---
 
-## 🛠️ System Optimizations & Fixes
-*Documenting my solutions to common Linux hurdles.*
+## Fixes
 
-### 🌐 Browser (Opera One / GX)
-**Issue:** Sidebar "Auto-hide" causing window manager crashes on Wayland.
-**Solution:** Forced X11 compatibility layer via Ozone flags.
+### Opera crashes on Wayland
+
+**Symptom** — enabling sidebar auto-hide crashed the window manager.
+
+**Cause** — Opera's Wayland/Ozone path mishandles the sidebar's popup surface.
+
+**Fix** — force the X11 backend in the `.desktop` entry:
+
 ```bash
-Fix command used in .desktop entry
 opera --ozone-platform=x11 --enable-features=UseOzonePlatform
 ```
-## 📷 Webcam Tuning
-Issue: Default UVC drivers causing grainy/dark video on the XPS sensor. Tool: Guvcview & v4l-utils.
 
-Primary Change: Disabled Auto-Exposure and set Power Line Frequency to 50Hz (Malaysia standard).
+### Grainy webcam
 
-Profile: Saved as mmu_webcam_profile.gpfl in this repo.
+**Symptom** — dark, noisy video from the XPS sensor under default UVC settings.
 
-## 📁 File Manager (Nautilus)
-Enabled HEIF/HEIC thumbnail support via heif-thumbnailer.
-
-Configured remote thumbnailing for NAS storage over Tailscale.
-
-# 🎮 Remote Work & Gaming Workflow
-How I stay connected between my home rig and campus.
-
-### ⚡ Sunshine + Moonlight
-Host: Windows 11 Gaming Rig running Sunshine.
-
-Client: Zorin OS laptop running Moonlight-Qt (Flatpak).
-
-Optimization: 1080p @ 60FPS (Balanced Bitrate) for zero-latency coding/gaming over university Wi-Fi.
-
-### 🌐 Tailscale Mesh Network
-The Setup: Connected all devices (Laptop, Gaming PC, NAS) into a secure private mesh.
-
-Wake-on-LAN: Implemented WoL via my Always-On NAS acting as a bridge to wake the gaming PC remotely.
-
-### 🐍 Development Stack
-Languages: Python 3.x, C++ (GCC/Clang)
-
-Environment: VS Code (Remote-SSH to NAS)
-
-Networking: Tailscale for remote port forwarding.
-### Advance Hardware 
-- **Fractional Scaling**: 125%
-- **Touchpad Gesture**: ```libinput-gestures```
-- **Thermal Management**: TLP
-### 🔋 Power Management (TLP)
-**Status:** ✅ Optimized
-- **Optimization:** Installed and configured `TLP` to handle aggressive power saving when on battery and maximum performance when plugged into AC.
-- **Result:** Improved idle power draw on the XPS 15 9500 and managed thermal throttling more effectively.
+**Fix** — disable auto-exposure and set the power line frequency to 50 Hz (Malaysia's mains frequency; leaving it at 60 Hz causes visible flicker banding). Tuned with `guvcview` and `v4l-utils`; the resulting control dump is in [`configs/video0.txt`](configs/video0.txt).
 
 ```bash
-# How to install on Zorin
+sudo apt install v4l-utils guvcview
+v4l2-ctl --list-ctrls          # inspect current values
+```
+
+### HEIC thumbnails in Nautilus
+
+Install `heif-thumbnailer` so iPhone photos preview instead of showing generic icons. Also configured for remote thumbnailing against NAS storage over Tailscale.
+
+```bash
+sudo apt install heif-thumbnailer ffmpegthumbnailer
+```
+
+### Battery life (TLP)
+
+Aggressive power saving on battery, full performance on AC. Noticeably lower idle draw and better thermal behaviour under sustained load. Full configuration in [`configs/tlpconfig.txt`](configs/tlpconfig.txt).
+
+```bash
 sudo apt install tlp tlp-rdw
 sudo tlp start
 ```
-### 🚀 Installation & Quick Start
-If I ever need to reinstall Zorin, these are the first commands I run:
 
-```Bash
-# Update and Install Essentials
-sudo apt update && sudo apt upgrade -y
-sudo apt install v4l-utils ffmpegthumbnailer heif-thumbnailer
-```
-### Install Moonlight & Flatpaks
+### Desktop tweaks
+
+- Fractional scaling at 125%
+- Touchpad gestures via `libinput-gestures`
+
+---
+
+## Remote workflow
+
+### Tailscale mesh
+
+Laptop, gaming desktop, and NAS all sit on one private tailnet. No port forwarding, no dynamic DNS. The always-on NAS doubles as a Wake-on-LAN bridge to power up the desktop remotely.
+
+### Game and desktop streaming
+
+| | |
+|---|---|
+| Host | Windows 11 desktop running Sunshine |
+| Client | Zorin laptop running Moonlight-Qt (Flatpak) |
+| Settings | 1080p @ 60 fps, balanced bitrate — usable over campus Wi-Fi |
+
+```bash
 flatpak install flathub com.moonlight_stream.Moonlight
-# 📝 To-Do / Future Projects
-[ ] Automate dotfile symlinking with a setup script.
+```
 
-[ ] Configure Rclone for MMU OneDrive integration.
+### Development
 
-[x] Optimize battery life using TLP or Power-profiles-daemon.
- 
+VS Code over Remote-SSH into the NAS, so heavy builds run on the server and the laptop stays cool and quiet.
+
+---
+
+## Repository contents
+
+```
+my-linux-setup/
+├── configs/
+│   ├── bashrc.txt        # Shell aliases and prompt
+│   ├── tlpconfig.txt     # Full TLP power configuration
+│   └── video0.txt        # Webcam control values
+├── scripts/
+│   └── setup.sh          # Post-install package bootstrap
+└── assets/
+```
+
+---
+
+## Fresh install bootstrap
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install v4l-utils ffmpegthumbnailer heif-thumbnailer tlp tlp-rdw
+flatpak install flathub com.moonlight_stream.Moonlight
+```
+
+---
+
+## To do
+
+- [x] Optimise battery life with TLP
+- [ ] Automate dotfile symlinking from `scripts/setup.sh`
+- [ ] Configure Rclone for university OneDrive
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
